@@ -14,21 +14,31 @@ app.use(express.json());
 const MODE_TEST = false; 
 // --------------------------------------
 
-// Connexion à la base de données
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ Connexion à MongoDB réussie !"))
-  .catch(err => {
+// Fonction de connexion à MongoDB pour environnement Serverless (Vercel)
+const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) return; // Déjà connecté
+  
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("✅ Connexion à MongoDB réussie !");
+  } catch (err) {
     console.error("❌ Échec de connexion :", err);
-    process.exit(1); // Arrêter le serveur si la connexion échoue
-  });
+    throw err; // Lancer l'erreur pour que les routes la gèrent
+  }
+};
 
 // Servir les fichiers statiques du dossier 'public'
 app.use(express.static(path.join(__dirname, "public")));
 
+// Route principale pour charger le site
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 // 🔹 ROUTE : Réinitialiser la base de données
 app.get("/reset-database", async (req, res) => {
   try {
+    await connectDB(); // Vérifier la connexion d'abord !
     await Member.updateMany({}, { 
       drawn: false, 
       givesTo: null, 
@@ -40,11 +50,6 @@ app.get("/reset-database", async (req, res) => {
   }
 });
 
-// Route principale pour charger le site
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
 // Route pour effectuer le tirage au sort
 app.post("/choose/:number", async (req, res) => {
   try {
@@ -54,6 +59,8 @@ app.post("/choose/:number", async (req, res) => {
     if (isNaN(number)) {
       return res.status(400).json({ message: "Numéro invalide. Veuillez fournir un numéro valide." });
     }
+
+    await connectDB(); // Vérifier la connexion d'abord !
 
     const member = await Member.findOne({ number: number });
 
