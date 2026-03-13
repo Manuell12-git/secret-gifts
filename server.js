@@ -101,8 +101,13 @@ app.post("/choose/:number", async (req, res) => {
   }
 });
 
-// --- 🚀 GESTION DU PORT POUR RENDER ---
+// --- 🚀 GESTION DU PORT POUR RENDER / LOCAL ---
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Serveur lancé sur le port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Serveur lancé sur le port ${PORT}`);
+  });
+}
+
+// Export de l'application Express pour le Serverless (Vercel)
+module.exports = app;
