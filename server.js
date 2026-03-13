@@ -1,6 +1,4 @@
-require("dotenv").config();
-// Fix for ECONNREFUSED _mongodb._tcp DNS issue
-require('dns').setServers(['8.8.8.8', '1.1.1.1']);
+try { require("dotenv").config(); } catch(e) { /* Pas de fichier .env en production */ }
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
