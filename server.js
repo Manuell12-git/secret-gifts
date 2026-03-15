@@ -1,4 +1,4 @@
-try { require("dotenv").config(); } catch(e) { /* Pas de fichier .env en production */ }
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
@@ -9,26 +9,22 @@ app.use(express.json());
 
 // --- 🛠 CONFIGURATION POUR TES TESTS ---
 // Mettre à false pour la production (pour sauvegarder les tirages)
-const MODE_TEST = false; 
-// --------------------------------------
+const MODE_TEST = false;
+// ----------------------------------------
 
-// Fonction de connexion à MongoDB pour environnement Serverless (Vercel)
-const connectDB = async () => {
-  if (mongoose.connection.readyState >= 1) return; // Déjà connecté
-  
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ Connexion à MongoDB réussie !");
-  } catch (err) {
-    console.error("❌ Échec de connexion :", err);
-    throw err; // Lancer l'erreur pour que les routes la gèrent
-  }
-};
+// Connexion à MongoDB au démarrage du serveur
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ Connexion à MongoDB réussie !"))
+  .catch((err) => {
+    console.error("❌ Échec de connexion à MongoDB :", err.message);
+    process.exit(1);
+  });
 
 // Servir les fichiers statiques du dossier 'public'
 app.use(express.static(path.join(__dirname, "public")));
 
-// Route principale pour charger le site
+// Route principale
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -36,44 +32,39 @@ app.get("/", (req, res) => {
 // 🔹 ROUTE : Réinitialiser la base de données
 app.get("/reset-database", async (req, res) => {
   try {
-    await connectDB(); // Vérifier la connexion d'abord !
-    await Member.updateMany({}, { 
-      drawn: false, 
-      givesTo: null, 
-      receivedFrom: null 
+    await Member.updateMany({}, {
+      drawn: false,
+      givesTo: null,
+      receivedFrom: null
     });
     res.send("<h1>✅ Base de données réinitialisée ! Toutes les enveloppes sont libres.</h1>");
   } catch (err) {
+    console.error(err);
     res.status(500).send("Erreur : " + err.message);
   }
 });
 
-// Route pour effectuer le tirage au sort
+// 🎯 ROUTE : Tirage au sort
 app.post("/choose/:number", async (req, res) => {
   try {
     const number = parseInt(req.params.number, 10);
 
-    // Validation du numéro
     if (isNaN(number)) {
-      return res.status(400).json({ message: "Numéro invalide. Veuillez fournir un numéro valide." });
+      return res.status(400).json({ message: "Numéro invalide." });
     }
 
-    await connectDB(); // Vérifier la connexion d'abord !
-
-    const member = await Member.findOne({ number: number });
+    const member = await Member.findOne({ number });
 
     if (!member) {
-      return res.status(404).json({ message: "Numéro d'enveloppe introuvable" });
+      return res.status(404).json({ message: "Numéro d'enveloppe introuvable." });
     }
 
-    // Bloquer si déjà tiré (uniquement si MODE_TEST est false)
     if (!MODE_TEST && member.drawn) {
       return res.status(400).json({ message: "Cette enveloppe a déjà été choisie ! ❌" });
     }
 
-    // Trouver quelqu'un qui n'a pas encore reçu de cadeau
     const available = await Member.find({
-      _id: { $ne: member._id }, // Ne pas se tirer soi-même
+      _id: { $ne: member._id },
       receivedFrom: null
     });
 
@@ -81,10 +72,8 @@ app.post("/choose/:number", async (req, res) => {
       return res.status(400).json({ message: "Plus de personnes disponibles pour le tirage." });
     }
 
-    // Sélection aléatoire
     const chosen = available[Math.floor(Math.random() * available.length)];
 
-    // Sauvegarde en base de données uniquement si on n'est pas en test
     if (!MODE_TEST) {
       member.drawn = true;
       member.givesTo = chosen.name;
@@ -93,26 +82,22 @@ app.post("/choose/:number", async (req, res) => {
       await chosen.save();
     }
 
-    // Réponse envoyée au client (le site)
     res.json({
       message: "Tirage réussi !",
       name: chosen.name,
-      photo: chosen.photo || "default.jpg" // Ajouter une valeur par défaut si la photo est absente
+      photo: chosen.photo || "default.jpg"
     });
 
   } catch (err) {
-    console.error(err);
+    console.error("Erreur lors du tirage :", err);
     res.status(500).json({ message: "Erreur serveur lors du tirage." });
   }
 });
 
-// --- 🚀 GESTION DU PORT POUR RENDER / LOCAL ---
+// 🚀 Démarrage du serveur
 const PORT = process.env.PORT || 3000;
-if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`🚀 Serveur lancé sur le port ${PORT}`);
-  });
-}
+app.listen(PORT, () => {
+  console.log(`🚀 Serveur lancé sur le port ${PORT}`);
+});
 
-// Export de l'application Express pour le Serverless (Vercel)
 module.exports = app;
