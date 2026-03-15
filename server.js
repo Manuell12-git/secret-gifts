@@ -94,6 +94,11 @@ app.post("/choose/:number", async (req, res) => {
   }
 });
 
+// Route attrape-tout : renvoyer index.html pour toutes les autres URLs (évite les "Not Found" au rafraîchissement)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 // 🚀 Démarrage du serveur
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
