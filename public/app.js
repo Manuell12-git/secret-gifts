@@ -21,14 +21,11 @@ for (let i = 1; i <= totalParticipants; i++) {
         // 1. Mise à jour du texte
         giftMessage.innerText = "Vous avez tiré : " + (data.name || "un ami");
 
-        // 2. Mise à jour et affichage de la photo
-        if (data.photo) {
-          giftPhoto.src = data.photo;
-          giftPhoto.alt = "Photo de " + data.name;
-          giftPhoto.style.display = "block"; // <-- FORCE L'AFFICHAGE
-        } else {
-          giftPhoto.style.display = "none"; // Cache si pas de photo
-        }
+        // 2. Mise à jour et affichage de la photo (fallback par défaut)
+        const photoUrl = data.photo || '/images/default.svg';
+        giftPhoto.src = photoUrl;
+        giftPhoto.alt = "Photo de " + (data.name || "un ami");
+        giftPhoto.style.display = "block"; // affiche toujours, avec fallback
 
         // 3. Affichage du bloc cadeau
         giftDiv.classList.remove('hidden');

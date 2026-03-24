@@ -2,8 +2,11 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Test - La Santa Famille 💖</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Échange de Cadeaux Familial 🎁</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&family=Mountains+of+Christmas:wght@700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --rouge: #b22222;
@@ -12,226 +15,477 @@
         }
 
         body {
-            background: radial-gradient(circle, #fff5f5 0%, #ffe4e1 100%);
+            /* Fond magique/ambiance fête : dégradés + bulles floues */
+            background:
+                radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.35), transparent 35%),
+                radial-gradient(circle at 80% 15%, rgba(250, 255, 255, 0.20), transparent 30%),
+                radial-gradient(circle at 40% 70%, rgba(173, 216, 230, 0.25), transparent 30%),
+                linear-gradient(135deg, #1b2a3b 0%, #121d2e 50%, #0f1322 100%);
+            background-blend-mode: screen;
+            color: white;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
-            padding: 10px;
-            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
-        /* --- COMPTEUR POUR LE CLIENT --- */
-        .admin-badge {
-            background: var(--rouge);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            z-index: 100;
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 50%),
+                        radial-gradient(circle at 20% 35%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 45%),
+                        radial-gradient(circle at 80% 25%, rgba(255,215,0,0.04) 0%, rgba(255,255,255,0) 40%);
+            filter: blur(2px) saturate(1.1);
+            z-index: -1;
+            pointer-events: none;
         }
 
         .header {
             text-align: center;
-            max-width: 90%;
-            margin-bottom: 60px;
-            color: #5d1a1a;
-            background: rgba(255, 255, 255, 0.7);
-            padding: 20px;
-            border-radius: 15px;
+            margin-bottom: 40px;
         }
 
-        h1 { font-size: 1.8rem; color: #a11d1d; margin: 10px 0; }
-        .intro { font-size: 0.95rem; line-height: 1.5; color: #444; }
+        h1 {
+            font-family: 'Bungee Shade', cursive; /* Style ballon/gold */
+            font-size: clamp(2rem, 8vw, 4rem);
+            color: #FFD700; /* Or */
+            margin: 0;
+            text-shadow: 3px 3px 0px #d35400;
+        }
 
-        .grid {
+        .subtitle {
+            font-family: 'Mountains of Christmas', cursive;
+            font-size: 1.8rem;
+            color: #ff4757; /* Rouge festif */
+        }
+
+        /* --- GRILLE DES CADEAUX --- */
+        .container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
-            gap: 120px 20px;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 18px;
             width: 100%;
             max-width: 1000px;
-            padding-top: 40px;
-            padding-bottom: 150px;
+            padding: 0 8px;
         }
 
-        .envelope-container {
-            position: relative;
-            width: 150px;
-            height: 100px;
-            margin: auto;
-            perspective: 1000px;
-            animation: farandole 6s ease-in-out infinite;
+        @media (max-width: 450px) {
+            .container {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 12px;
+            }
+            .gift {
+                aspect-ratio: 1 / 1;
+                border-width: 3px;
+            }
+            .tag {
+                width: 42px;
+                height: 42px;
+                font-size: 1.1rem;
+            }
+            h1 {
+                font-size: clamp(1.5rem, 10vw, 2.5rem);
+            }
+            .subtitle {
+                font-size: 1.2rem;
+            }
         }
 
-        .envelope-wrapper {
+        /* L'enveloppe / Le cadeau */
+        .gift {
             position: relative;
-            width: 100%; height: 100%;
-            background-color: var(--rouge-sombre);
+            aspect-ratio: 1 / 1;
+            background: #3498db; /* Bleu comme ton image */
+            border-radius: 15px;
+            border: 4px solid #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             cursor: pointer;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-            transition: transform 0.3s;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
-        .flap {
+        /* Décoration du ruban sur le cadeau */
+        .gift::before {
+            content: "";
             position: absolute;
-            top: 0; width: 0; height: 0;
-            border-left: 75px solid transparent;
-            border-right: 75px solid transparent;
-            border-top: 60px solid var(--rouge);
-            transform-origin: top;
-            transition: transform 0.4s;
-            z-index: 4;
+            width: 20px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .gift::after {
+            content: "";
+            position: absolute;
+            height: 20px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.3);
         }
 
-        .envelope-body {
+        .gift:hover {
+            transform: scale(1.1) rotate(3deg);
+            background: #2980b9;
+        }
+
+        /* L'ÉTIQUETTE (C'est elle qui règle ton problème de triangle !) */
+        .tag {
             position: absolute;
-            bottom: 0; width: 100%; height: 100%;
-            background-color: var(--rouge);
-            z-index: 3;
+            top: -10px;
+            right: -10px;
+            background: #FFD700;
+            color: #000000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: var(--or);
-            font-size: 2.5rem;
             font-weight: bold;
+            font-size: 1.4rem;
+            border: 3px solid #ffffff;
+            z-index: 5;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
         }
 
-        .card {
+        /* --- ÉTAT BLOQUÉ (DÉJÀ PRIS) --- */
+        .gift.taken {
+            background: linear-gradient(135deg, #283044 0%, #0f172a 100%);
+            filter: grayscale(0.4);
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none; /* Empêche le clic */
+            transform: scale(1) !important;
+        }
+
+        .gift.dimmed {
+            opacity: 0.3;
+            filter: brightness(0.8);
+            pointer-events: none;
+        }
+
+        .gift.taken::before {
+            content: "PRIS";
             position: absolute;
-            top: 5px; left: 5px;
-            width: 140px; height: 140px;
-            background: white;
-            border-radius: 8px;
-            z-index: 2;
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .card img { width: 125px; height: 125px; object-fit: cover; border-radius: 4px; }
-
-        .envelope-container.open .flap { transform: rotateX(180deg); z-index: 1; }
-        .envelope-container.open .card {
-            transform: translateY(-110px) scale(1.3);
-            opacity: 1;
-            visibility: visible;
             z-index: 10;
+            background: #ff4757;
+            color: white;
+            padding: 5px 10px;
+            transform: rotate(-20deg);
+            font-weight: bold;
+            border-radius: 5px;
         }
 
-        .message-box {
-            position: absolute;
-            bottom: -110px; width: 180px; left: -15px;
-            background: white;
-            padding: 10px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            opacity: 0;
-            transition: 0.5s 0.6s;
-            text-align: center;
-            border: 2px solid var(--or);
-            z-index: 11;
+        .gift.taken .tag {
+            background: #c0392b;
+            color: #fff;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.4);
         }
 
-        .envelope-container.open .message-box { opacity: 1; transform: translateY(10px); }
-        .name-tag { color: var(--rouge); font-weight: bold; font-size: 1rem; display: block; }
-
-        @keyframes farandole {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(0, 8px); }
-        }
-
-        @media (min-width: 768px) {
-            h1 { font-size: 2.5rem; }
-            .envelope-container { width: 180px; height: 120px; }
-            .flap { border-left: 90px solid transparent; border-right: 90px solid transparent; border-top: 75px solid var(--rouge); }
-            .card { width: 160px; height: 160px; }
-            .card img { width: 145px; height: 145px; }
-            .envelope-container.open .card { transform: translateY(-140px) scale(1.5); }
-            .message-box { width: 220px; bottom: -120px; }
+        /* Message de bienvenue */
+        .user-welcome {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
 <body>
 
-    <div class="admin-badge" id="memberCounter">Vérification des membres...</div>
-
     <div class="header">
-        <h1>💖 La Joie de Donner en Famille  ! ✨</h1>
-        <p class="intro">
-            Ici, la magie opère… et ce n’est pas juste un simple échange de cadeaux. C’est un moment de cœur, de partage et de bonheur qui nous rassemble.
-        </p>
-        <p style="font-weight: bold; color: var(--rouge); margin-top: 15px;">
-            ✨ Cliquez sur une enveloppe ✉️ pour lancer le tirage !
-        </p>
+        <h1>ÉCHANGE DE</h1>
+        <div class="subtitle">Cadeaux Magiques 2026</div>
     </div>
 
-    <div id="envelope-grid" class="grid"></div>
+    <div class="user-welcome" id="userInfo">
+        Chargement de votre session...
+    </div>
+
+    <!-- Bouton Recommencer (admin seulement) -->
+    <div id="adminPanel" style="display:none; margin-bottom:15px;">
+        <button onclick="recommencerJeu()" style="
+            background: #c0392b; color: white; border: none;
+            padding: 10px 22px; border-radius: 8px; font-weight: bold;
+            cursor: pointer; font-size: 1rem;
+        ">🔄 Recommencer le jeu</button>
+    </div>
+
+    <div class="container" id="giftGrid">
+        </div>
 
     <script>
-        // On génère 20 enveloppes numérotées de 1 à 20
-        const totalEnvelopes = 20;
-        document.getElementById('memberCounter').innerText = `✅ Système prêt : ${totalEnvelopes} Enveloppes`;
+        /* --- LOGIQUE (JAVASCRIPT) --- */
 
-        const grid = document.getElementById('envelope-grid');
+        // 1. Identifiant : On récupère le nom dans l'URL (ex: index.html?nom=Papa)
+        const urlParams = new URLSearchParams(window.location.search);
+        const userName = urlParams.get('nom') || "Invité Mystère";
+        const isAdmin = urlParams.get('admin') === 'true';
 
-        for (let i = 1; i <= totalEnvelopes; i++) {
-            const container = document.createElement('div');
-            container.className = 'envelope-container';
-            container.innerHTML = `
-                <div class="envelope-wrapper" onclick="toggleEnvelope(this, ${i})">
-                    <div class="flap"></div>
-                    <div class="card"><img src="" alt="Cadeau"></div>
-                    <div class="envelope-body">${i}</div>
-                </div>
-                <div class="message-box">
-                    🎁 Offre ton cadeau à : <br><span class="name-tag">Chargement...</span>
-                </div>
-            `;
-            grid.appendChild(container);
+        // Afficher le bouton admin si admin=true dans l'URL
+        if (isAdmin) document.getElementById('adminPanel').style.display = 'block';
+
+        // Vérifier si cet utilisateur a DÉJÀ choisi (mémoire persistante)
+        const storageKey = 'cadeau_choisi_' + userName;
+        let aDejaChoisi = !!localStorage.getItem(storageKey);
+
+        if (aDejaChoisi) {
+            document.getElementById('userInfo').innerText = `✅ ${userName}, tu as déjà choisi ton cadeau !`;
+        } else {
+            document.getElementById('userInfo').innerText = `🎄 Bienvenue, ${userName} ! Choisissez un cadeau.`;
         }
 
-        async function toggleEnvelope(element, number) {
-            const container = element.parentElement;
-            
-            // Si l'enveloppe est déjà ouverte, on ne fait rien
-            if (container.classList.contains('open')) return;
+        let cadeauxPris = [];
+        const grid = document.getElementById('giftGrid');
 
-            try {
-                // Appel au serveur Node.js (ton server.js)
-                const response = await fetch(`/choose/${number}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
+        function showCelebration(message) {
+            const bubble = document.createElement('div');
+            bubble.textContent = message;
+            bubble.style.position = 'fixed';
+            bubble.style.left = '50%';
+            bubble.style.top = '10%';
+            bubble.style.transform = 'translateX(-50%)';
+            bubble.style.background = 'rgba(255,255,255,0.95)';
+            bubble.style.color = '#111';
+            bubble.style.padding = '14px 22px';
+            bubble.style.borderRadius = '14px';
+            bubble.style.boxShadow = '0 0 25px rgba(255,255,255,0.6)';
+            bubble.style.zIndex = 999;
+            bubble.style.fontWeight = '700';
+            bubble.style.fontSize = '1.1rem';
+            document.body.appendChild(bubble);
 
-                const data = await response.json();
+            setTimeout(() => {
+                bubble.remove();
+            }, 1800);
+        }
 
-                if (response.ok) {
-                    // On remplit la carte avec les données reçues de MongoDB
-                    const cardImg = container.querySelector('.card img');
-                    const nameDisplay = container.querySelector('.name-tag');
-                    
-                    cardImg.src = data.photo; 
-                    nameDisplay.innerText = data.name;
+        function renderGifts() {
+            grid.innerHTML = '';
+            for (let i = 1; i <= 20; i++) {
+                const giftDiv = document.createElement('div');
+                giftDiv.classList.add('gift');
+                giftDiv.dataset.id = i;
 
-                    // On déclenche l'animation d'ouverture
-                    container.classList.add('open');
-                } else {
-                    // Affiche le message d'erreur du serveur (ex: "Déjà utilisé")
-                    alert(data.message);
+                if (cadeauxPris.includes(i)) {
+                    giftDiv.classList.add('taken');
                 }
-            } catch (err) {
-                console.error("Erreur serveur:", err);
-                alert("Erreur de connexion au serveur !");
+
+                giftDiv.innerHTML = `
+                    <div class="tag">${i}</div>
+                    <span style="font-size: 2rem;">🎁</span>
+                `;
+
+                giftDiv.onclick = function () {
+                    choisirCadeau(i, giftDiv);
+                };
+
+                grid.appendChild(giftDiv);
             }
         }
+
+        async function choisirCadeau(numero, giftDiv) {
+            if (cadeauxPris.includes(numero)) {
+                alert('Désolé, ce cadeau est déjà pris. Choisis un autre !');
+                return;
+            }
+
+            // Vérifier si l'utilisateur a déjà choisi
+            if (aDejaChoisi) {
+                alert('🎅 Ho Ho Ho ! Tu as déjà choisi ton cadeau, un seul par personne !');
+                return;
+            }
+
+            const confirmation = confirm(`🎁 Ouvre le cadeau n°${numero} ?`);
+            if (!confirmation) {
+                return;
+            }
+
+            try {
+                // On fait la requête au backend pour le tirage
+                const response = await fetch('/choose/' + numero, { method: 'POST' });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(data.message || 'Erreur lors du tirage.');
+                    return;
+                }
+
+                // C'est un succès, on marque le cadeau comme pris
+                aDejaChoisi = true;
+                localStorage.setItem(storageKey, numero); // Mémoriser même après rechargement
+                cadeauxPris.push(numero);
+                giftDiv.classList.add('taken');
+
+                // On grise les autres cadeaux
+                document.querySelectorAll('.gift').forEach(card => {
+                    if (!card.classList.contains('taken')) {
+                        card.classList.add('dimmed');
+                    }
+                });
+
+                document.getElementById('userInfo').innerText = `✨ Bravo ${userName} ! Tu as ouvert le cadeau n°${numero}.`;
+                showCelebration(`🎉 ${userName} a pris le cadeau n°${numero} !`);
+
+                // On affiche la photo renvoyée par le backend (Data = name et photo)
+                afficherModal(data.name, data.photo);
+
+            } catch (err) {
+                console.error("Erreur avec le serveur :", err);
+                alert("Impossible de joindre le serveur pour ouvrir le cadeau.");
+            }
+        }
+
+        function afficherModal(name, photoUrl) {
+            const modal = document.createElement('div');
+            // Styles de la popup (fond sombre derrière)
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100vw';
+            modal.style.height = '100vh';
+            modal.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.style.zIndex = '9999';
+            modal.style.opacity = '0';
+            modal.style.transition = 'opacity 0.3s ease';
+
+            const content = document.createElement('div');
+            content.style.backgroundColor = '#1b2a3b'; // Fond joli
+            content.style.padding = '25px';
+            content.style.borderRadius = '15px';
+            content.style.textAlign = 'center';
+            content.style.border = '2px solid #FFD700'; // Bordure or
+            // TAILLE RAISONNABLE (pas trop grande)
+            content.style.maxWidth = '300px'; 
+            content.style.width = '85%';
+            content.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+            content.style.transform = 'scale(0.8)';
+            content.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+            const title = document.createElement('h2');
+            title.innerText = '🎁 Surprise ! 🎁';
+            title.style.color = '#FFD700'; // Couleur or
+            title.style.margin = '0 0 10px 0';
+            title.style.fontFamily = "'Mountains of Christmas', cursive";
+
+            const msg = document.createElement('p');
+            msg.innerText = `Ton cadeau de la part d'un ami secret à :`;
+            msg.style.margin = '0 0 10px 0';
+
+            const photo = document.createElement('img');
+            photo.src = photoUrl || '/images/default.svg';
+            photo.alt = name;
+            // Si l'image n'existe pas, on utilise le SVG par défaut
+            photo.onerror = function() { this.src = '/images/default.svg'; };
+            // IMAGE PAS TROP GRANDE COMME DEMANDÉ
+            photo.style.width = '130px';
+            photo.style.height = '130px';
+            photo.style.objectFit = 'cover'; // Évite la déformation
+            photo.style.borderRadius = '50%'; // Image ronde
+            photo.style.border = '4px solid white';
+            photo.style.margin = '10px auto';
+            photo.style.display = 'block';
+
+            const nameEl = document.createElement('h3');
+            nameEl.innerText = name;
+            nameEl.style.color = '#ff4757';
+            nameEl.style.fontSize = '1.6rem';
+            nameEl.style.margin = '10px 0 20px 0';
+
+            const btn = document.createElement('button');
+            btn.innerText = 'Super !';
+            btn.style.padding = '10px 25px';
+            btn.style.backgroundColor = '#FFD700';
+            btn.style.color = '#000';
+            btn.style.border = 'none';
+            btn.style.borderRadius = '8px';
+            btn.style.fontWeight = 'bold';
+            btn.style.cursor = 'pointer';
+            
+            btn.onclick = () => {
+                modal.style.opacity = '0';
+                content.style.transform = 'scale(0.8)';
+                setTimeout(() => modal.remove(), 300);
+            };
+
+            content.appendChild(title);
+            content.appendChild(msg);
+            content.appendChild(photo);
+            content.appendChild(nameEl);
+            content.appendChild(btn);
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+
+            // Déclencher l'animation
+            setTimeout(() => {
+                modal.style.opacity = '1';
+                content.style.transform = 'scale(1)';
+            }, 10);
+        }
+
+        // Précharger toutes les images dès le chargement de la page
+        async function preloadImages() {
+            try {
+                const res = await fetch('/participants');
+                const participants = await res.json();
+                participants.forEach(p => {
+                    if (p.photo) {
+                        const img = new Image();
+                        img.src = p.photo;
+                    }
+                });
+            } catch (e) {
+                // Silencieux : le préchargement n'est pas critique
+            }
+        }
+
+        // Fonction pour recommencer le jeu (admin seulement)
+        async function recommencerJeu() {
+            if (!confirm('⚠️ Recommencer le jeu va effacer tous les choix. Continuer ?')) return;
+
+            const pwd = prompt("Entrez le mot de passe Administrateur :");
+            if (pwd === null) return; // Annulation
+
+            try {
+                // Envoyer la requête sécurisée au serveur
+                const response = await fetch('/reset-database', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminKey: pwd })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    alert('❌ ' + (data.message || 'Mot de passe incorrect.'));
+                    return;
+                }
+
+                // Effacer tous les localStorage de cadeaux choisis
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('cadeau_choisi_')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+
+                alert(data.message);
+                window.location.reload();
+            } catch (e) {
+                console.error(e);
+                alert('Erreur réseau lors de la réinitialisation.');
+            }
+        }
+
+        renderGifts();
+        preloadImages(); // Lance le préchargement en arrière-plan
     </script>
 </body>
 </html>
